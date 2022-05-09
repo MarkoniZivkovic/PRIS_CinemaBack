@@ -2,6 +2,7 @@ package com.pris.cinema.controllers;
 
 import com.pris.cinema.entities.dto.MovieRegisterDto;
 import com.pris.cinema.entities.dto.ProjectionRegisterDto;
+import com.pris.cinema.entities.dto.RatingDto;
 import com.pris.cinema.repository.*;
 import com.pris.cinema.services.MovieService;
 import com.pris.cinema.services.ProjectionService;
@@ -85,6 +86,15 @@ public class MovieController {
         return new ResponseEntity<>(projectionRepository.findById(id), HttpStatus.OK);
     }
 
+    @GetMapping("/projections/movie/{id}/rate")
+    public ResponseEntity<?> rateMovie(@PathVariable Long id, @Valid @RequestBody RatingDto RatingDto, BindingResult result) {
+        return new ResponseEntity<>(movieService.addRating(id, RatingDto) , HttpStatus.OK);
+    }
+
+    @GetMapping("/projections/movie/{id}/avgRate")
+    public ResponseEntity<?> getMovieRatingById(@PathVariable Long id) {
+        return new ResponseEntity<>(movieService.getRating(id) , HttpStatus.OK);
+    }
 
     @GetMapping("/projections/movie/{title}")
     public ResponseEntity<?> getProjectionsByMovieName(@PathVariable("title") String title) {

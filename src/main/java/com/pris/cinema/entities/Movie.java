@@ -48,6 +48,14 @@ public class Movie implements Comparable<Movie> {
     @Column(name = "runtime")
     protected Integer runtime;
 
+    @Min(value = 1, message = "Rating sum must be greater than {value}")
+    @Column(name = "ratingSum")
+    protected Integer ratingSum;
+
+    @Min(value = 1, message = "Rating count must be greater than {value}")
+    @Column(name = "ratingCount")
+    protected Integer ratingCount;
+
     @ManyToMany
     @JoinTable(
         name = "movie_genre",
@@ -62,6 +70,10 @@ public class Movie implements Comparable<Movie> {
     @JsonBackReference
     @OneToMany(mappedBy = "movie", fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
     protected List<Comment> comments = new LinkedList<>();
+
+    public double getRating(){
+        return ratingSum/ratingCount;
+    }
 
     @Override
     public int compareTo(Movie other) {
