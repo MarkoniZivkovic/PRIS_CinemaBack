@@ -48,13 +48,11 @@ public class Movie implements Comparable<Movie> {
     @Column(name = "runtime")
     protected Integer runtime;
 
-    @Min(value = 1, message = "Rating sum must be greater than {value}")
     @Column(name = "ratingSum")
     protected Integer ratingSum;
 
-    @Min(value = 1, message = "Rating count must be greater than {value}")
     @Column(name = "ratingCount")
-    protected Integer ratingCount;
+    protected Double ratingCount;
 
     @ManyToMany
     @JoinTable(
@@ -72,7 +70,10 @@ public class Movie implements Comparable<Movie> {
     protected List<Comment> comments = new LinkedList<>();
 
     public double getRating(){
-        return ratingSum/ratingCount;
+        if(ratingCount !=0){
+            return ratingSum/ratingCount;
+        }
+        else return 0.0;
     }
 
     @Override

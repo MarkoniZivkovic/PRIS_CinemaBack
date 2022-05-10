@@ -34,9 +34,10 @@ public class CommentController {
             @Valid @RequestBody CommentRegisterDto commentRegisterDto, BindingResult result) {
         return commentService.createComment(commentRegisterDto, result);
     }
-    @PostMapping("/delete")
-    public ResponseEntity<?> createComment(@PathVariable Long id) {
+    @PostMapping("/delete/{id}")
+    public ResponseEntity<?> deleteComment(@PathVariable Long id) {
         return new ResponseEntity<>(commentService.deleteCommentById(id), HttpStatus.OK);
     }
+
 
 }

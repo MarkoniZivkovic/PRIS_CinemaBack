@@ -6,7 +6,6 @@ import com.pris.cinema.entities.dto.ProjectionRegisterDto;
 import com.pris.cinema.entities.dto.RatingDto;
 import com.pris.cinema.repository.*;
 import com.pris.cinema.utils.DateTimeUtils;
-import org.json.HTTP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +48,9 @@ public class MovieService {
         newMovie.setImage(movieRegisterDto.getImage());
         newMovie.setDescription(movieRegisterDto.getDescription());
         newMovie.setRuntime(movieRegisterDto.getRuntime());
+        newMovie.setRatingSum(0);
+        newMovie.setRatingCount(0.0);
+
 
         Arrays.stream(movieRegisterDto.getGenres().split(", ")).forEach(s -> {
 
@@ -138,7 +140,7 @@ public class MovieService {
         return new ResponseEntity<>("Projection with ID " + id + " deleted.", HttpStatus.OK);
     }
 
-    public ResponseEntity<?> addRating(@PathVariable Long id, RatingDto ratingDto){
+    public ResponseEntity<?> addRating(@PathVariable Long id,@Valid @RequestBody RatingDto ratingDto){
 
         Optional<Movie> movieOpt = movieRepository.findById(id);
 
@@ -148,7 +150,7 @@ public class MovieService {
         Movie movie = movieOpt.get();
 
         Integer ratingSum = movie.getRatingSum();
-        Integer ratingCount = movie.getRatingCount();
+        Double ratingCount = movie.getRatingCount();
 
         ratingSum = ratingSum + ratingDto.getRating();
         ratingCount++;

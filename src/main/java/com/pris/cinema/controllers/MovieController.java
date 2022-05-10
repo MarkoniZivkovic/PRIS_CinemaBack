@@ -86,15 +86,11 @@ public class MovieController {
         return new ResponseEntity<>(projectionRepository.findById(id), HttpStatus.OK);
     }
 
-    @GetMapping("/projections/movie/{id}/rate")
+    @GetMapping("{id}/rate")
     public ResponseEntity<?> rateMovie(@PathVariable Long id, @Valid @RequestBody RatingDto RatingDto, BindingResult result) {
         return new ResponseEntity<>(movieService.addRating(id, RatingDto) , HttpStatus.OK);
     }
 
-    @GetMapping("/projections/movie/{id}/avgRate")
-    public ResponseEntity<?> getMovieRatingById(@PathVariable Long id) {
-        return new ResponseEntity<>(movieService.getRating(id) , HttpStatus.OK);
-    }
 
     @GetMapping("/projections/movie/{title}")
     public ResponseEntity<?> getProjectionsByMovieName(@PathVariable("title") String title) {
