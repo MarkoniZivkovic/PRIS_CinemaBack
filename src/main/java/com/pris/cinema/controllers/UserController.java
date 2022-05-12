@@ -2,7 +2,8 @@ package com.pris.cinema.controllers;
 
 import com.pris.cinema.entities.Role;
 import com.pris.cinema.entities.User;
-import com.pris.cinema.entities.dto.UserInfoDto;
+import com.pris.cinema.entities.dto.UserDisplayDto;
+import com.pris.cinema.entities.dto.UserRegisterDto;
 import com.pris.cinema.entities.e.ERole;
 import com.pris.cinema.payload.JwtLoginSuccessResponse;
 import com.pris.cinema.payload.LoginRequest;
@@ -41,15 +42,23 @@ public class UserController {
         return ResponseEntity.ok(new JwtLoginSuccessResponse(true, userService.getJwt(loginRequest)));
     }
 
-    @PostMapping("/register/{roleId}")
-    public ResponseEntity<?> registerUser(@Valid @RequestBody User user, @PathVariable Long roleId, BindingResult result) {
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@Valid @RequestBody UserRegisterDto userRegisterDto, BindingResult result) {
+
+        User user = new User();
+
+        user.setUsername(userRegisterDto.getUsername());
+        user.setPassword(userRegisterDto.getPassword());
+        user.setConfirmPassword(userRegisterDto.getConfirmPassword());
+        user.setFirstName(userRegisterDto.getFirstName());
+        user.setLastName(userRegisterDto.getLastName());
 
         userValidator.validate(user, result);
 
-        Optional<Role> optionalRole = roleRepository.findById(roleId);
+        Optional<Role> optionalRole = roleRepository.findById(userRegisterDto.getRoleId());
 
         if (!optionalRole.isPresent())
-            return new ResponseEntity<>("{\"msg\":\"Role with ID " + roleId + " not found.\"}", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("{\"msg\":\"Role with ID " + userRegisterDto.getRoleId() + " not found.\"}", HttpStatus.BAD_REQUEST);
 
         user.setRole(optionalRole.get());
 
@@ -58,7 +67,7 @@ public class UserController {
 
         User registeredUser = userService.saveUser(user);
 
-        return new ResponseEntity<>(new UserInfoDto(registeredUser), HttpStatus.CREATED);
+        return new ResponseEntity<>(new UserDisplayDto(registeredUser), HttpStatus.CREATED);
     }
 
     @GetMapping("/me")
@@ -67,7 +76,7 @@ public class UserController {
         User principal = securityUtils.getSelf();
 
         if (principal != null)
-            return new ResponseEntity<>(new UserInfoDto(principal), HttpStatus.OK);
+            return new ResponseEntity<>(new UserDisplayDto(principal), HttpStatus.OK);
         else
             return new ResponseEntity<>("{\"msg\":\"Invalid token.\"}", HttpStatus.UNAUTHORIZED);
     }

@@ -19,16 +19,16 @@ import java.util.List;
 @Table(name = "role")
 public class Role {
 
-    // ovo unosi samo admin, za pocetak cemo rucno uneti u bazu sta treba
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     protected Long id;
 
     @NotBlank(message = "Please enter role")
+    @Column(name = "role", nullable = false)
     protected String role;
 
-    @JsonManagedReference("role_id")
+    @JsonManagedReference
     @OneToMany(mappedBy = "role", fetch = FetchType.LAZY, cascade = { CascadeType.REFRESH })
     protected List<User> users = new LinkedList<>();
 }

@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
+import javax.persistence.Column;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -30,4 +31,5 @@ public class MovieRegisterDto {
 
     @NotBlank(message = "Please enter genres in format 'GENRE1, GENRE2...'")
     protected String genres;
+
 }
