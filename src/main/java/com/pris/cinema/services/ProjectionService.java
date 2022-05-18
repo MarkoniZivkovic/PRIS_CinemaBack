@@ -21,51 +21,61 @@ import java.util.stream.Collectors;
 @Service
 public class ProjectionService {
 
-    @Autowired
-    private MovieRepository movieRepository;
+	@Autowired
+	private MovieRepository movieRepository;
 
-    @Autowired
-    private ProjectionRepository projectionRepository;
+	@Autowired
+	private ProjectionRepository projectionRepository;
 
+	public Set<MovieDisplayDto> getMoviesByDate(LocalDate date) {
+		return projectionRepository.findAllByDate(date.atTime(0, 0), date.atTime(0, 0).plusDays(1)).stream()
+				.map(Projection::getMovie).map(Movie::getDisplayDto).collect(Collectors.toSet());
+	}
 
-    public Set<MovieDisplayDto> getMoviesByDate(LocalDate date){
-        return projectionRepository.findAllByDate(date.atTime(0, 0), date.atTime(0, 0).plusDays(1))
-                .stream().map(Projection::getMovie).map(Movie::getDisplayDto).collect(Collectors.toSet());
-    }
+	public List<Projection> getProjectionsByMovieAndDateTime(Long movieId, LocalDate date) {
 
+		if (!movieRepository.findById(movieId).isPresent())
+			return Collections.emptyList();
 
-    public List<Projection> getProjectionsByMovieAndDateTime(Long movieId, LocalDate date) {
+		return projectionRepository.findProjectionsByMovieAndDateTime(movieRepository.findById(movieId).get(),
+				date.atTime(0, 0), date.atTime(0, 0).plusDays(1));
+	}
 
-        if (!movieRepository.findById(movieId).isPresent())
-            return Collections.emptyList();
+	public List<Projection> getProjectionsThisWeek() {
 
-        return projectionRepository.findProjectionsByMovieAndDateTime(movieRepository.findById(movieId).get(), date.atTime(0, 0), date.atTime(0, 0).plusDays(1));
-    }
+		LocalDateTime mon = DateTimeUtils.thisWeekMonday();
+		List<Projection> thisWeekProjections = new LinkedList<>();
 
+		for (int i = 0; i < 7; i++)
+			thisWeekProjections.addAll(projectionRepository.findAllByDate(mon.plusDays(i), mon.plusDays(i + 1)));
 
-    public List<Projection> getProjectionsThisWeek() {
+		System.out.println(thisWeekProjections);
 
-        LocalDateTime mon = DateTimeUtils.thisWeekMonday();
-        List<Projection> thisWeekProjections = new LinkedList<>();
+		return thisWeekProjections;
+	}
 
-        for (int i = 0; i < 7; i++)
-            thisWeekProjections.addAll(projectionRepository.findAllByDate(mon.plusDays(i), mon.plusDays(i + 1)));
+	public RepertoireDisplayDto getMoviesGroupedByDate() {
 
-        System.out.println(thisWeekProjections);
+		List<Projection> projectionsThisWeek = getProjectionsThisWeek();
 
-        return thisWeekProjections;
-    }
+		RepertoireDisplayDto repertoireDisplayDto = new RepertoireDisplayDto(
+				DateTimeUtils.thisWeekMonday().toLocalDate());
 
+		for (Projection p : projectionsThisWeek)
+			repertoireDisplayDto.addProjection(p);
 
-    public RepertoireDisplayDto getMoviesGroupedByDate() {
+		return repertoireDisplayDto;
+	}
 
-        List<Projection> projectionsThisWeek = getProjectionsThisWeek();
+	public List<Projection> getBestRatedProjections() {
 
-        RepertoireDisplayDto repertoireDisplayDto = new RepertoireDisplayDto(DateTimeUtils.thisWeekMonday().toLocalDate());
-
-        for (Projection p : projectionsThisWeek)
-            repertoireDisplayDto.addProjection(p);
-
-        return repertoireDisplayDto;
-    }
+		return projectionRepository
+				.findAllByMonthAndRating(
+						LocalDateTime.of(LocalDateTime.now().getYear(), LocalDateTime.now().getMonth().getValue(), 1,
+								LocalDateTime.now().getHour(), LocalDateTime.now().getMinute()),
+						LocalDateTime.of(LocalDateTime.now().getYear(), LocalDateTime.now().getMonth().getValue(),
+								LocalDateTime.now().getMonth().maxLength(), LocalDateTime.now().getHour(),
+								LocalDateTime.now().getMinute()))
+				.stream().filter(p -> p.getMovie().getRating() > 4).collect(Collectors.toList());
+	}
 }

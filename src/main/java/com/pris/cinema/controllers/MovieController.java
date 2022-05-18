@@ -114,4 +114,9 @@ public class MovieController {
     public ResponseEntity<?> deleteProjectionById(@PathVariable Long id) {
         return movieService.deleteProjectionById(id);
     }
+    
+    @GetMapping("/projections/bestrated")
+    public ResponseEntity<?> getBestRatedProjections() {
+        return new ResponseEntity<>(projectionService.getBestRatedProjections(), HttpStatus.OK);
+    }
 }
